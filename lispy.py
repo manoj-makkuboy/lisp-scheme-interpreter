@@ -67,24 +67,38 @@ def parser(un_parsed_list_of_tokens):
     return parsed_list_of_tokens
 
 
+
 def build_list(un_parsed_tokens):
     new_list = []
     x = 0
-    if un_parsed_tokens[x] == '(':
-        while (un_parsed_tokens[x+1] != ')'):
 
-            if(un_parsed_tokens[x+1] == '('):
-                sub_list = build_list(un_parsed_tokens[x+1:])   # recursive function call
+    if(un_parsed_tokens[x] == '('):
+        x += 1
+
+        while(x < len(un_parsed_tokens)):
+            if(un_parsed_tokens[x] == ')'):
+                return new_list           # base Return
+            elif(un_parsed_tokens[x] == '('):
+                respective_close_int = find_respective_close(un_parsed_tokens,x)
+                sub_list = build_list(un_parsed_tokens[x:respective_close_int + 1])
+                x  = respective_close_int + 1
                 new_list.append(sub_list)
-                x += (len(sub_list) + 2)
-                continue
+            elif(un_parsed_tokens[x] != ')' or '('):
+                new_list.append(un_parsed_tokens[x])
+                x += 1
+    return new_list
 
-            new_list.append(un_parsed_tokens[x+1])
-            x += 1
-        return new_list
+def find_respective_close(token_list,open_index):
+    open_p = 0
+    close_p = 0
+    for x in range(open_index,len(token_list)+1):
+        if(token_list[x] == '('):
+            open_p += 1
+        elif(token_list[x] == ')'):
+            close_p += 1
+        if (open_p == close_p):
+            return x
 
-
-    new_list.append(build_list())
 
 def operator(s_expression):
     pass
@@ -100,5 +114,4 @@ if __name__ == '__main__':
 
     input_string_main = input()
     print ('parser output : ', parser(scanner(input_string_main)))
-
 
