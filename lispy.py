@@ -1,3 +1,5 @@
+from fractions import Fraction
+
 def scanner(input_str):
     '''Scans the input string from standard input and replaces '(' with ' [ '
         and ')' with ' ] ' '''
@@ -101,7 +103,68 @@ def find_respective_close(token_list,open_index):
 
 
 def operator(s_expression):
-    pass
+
+    if(s_expression[0] == '+'):       # for expression starting with '+'
+        result = 0
+        x = 1
+
+        while (x < len(s_expression)):
+            if (type(s_expression[x]) == type([])):
+                s_expression[x]  = evaluator(s_expression[x])
+            result += s_expression[x]
+            x += 1
+
+        return result
+
+    if(s_expression[0] == '-'):      # for expression starting with '-'
+
+        result = s_expression[1]
+
+        if(len(s_expression) == 2):   # Special case like (- 3) to return -3
+           return (-1 * result)
+
+        x = 2
+
+        while (x < len(s_expression)):
+
+            if (type(s_expression[x]) == type([])):
+                s_expression[x]  = evaluator(s_expression[x])
+            result -= s_expression[x]
+            x += 1
+
+        return result
+
+    if(s_expression[0] == '*'):       # for expression starting with '*'
+        result = 1
+        x = 1
+
+        while (x < len(s_expression)):
+            if (type(s_expression[x]) == type([])):
+                s_expression[x]  = evaluator(s_expression[x])
+            result *= s_expression[x]
+            x += 1
+
+        return result
+
+    if(s_expression[0] == '/'):       # for expression starting with '/'
+        result = s_expression[1]
+        x = 2
+
+
+        if(len(s_expression) == 2):     # special case to return (/ 5) as (1/5)
+            return str(Fraction(1/s_expression[1]))
+
+        while (x < len(s_expression)):
+            if (type(s_expression[x]) == type([])):
+                s_expression[x]  = evaluator(s_expression[x])
+            result /= s_expression[x]
+            x += 1
+
+        return str(Fraction(result).limit_denominator())
+
+
+
+
 
 
 def evaluator(s_expression):
