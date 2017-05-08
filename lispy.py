@@ -102,7 +102,7 @@ def find_respective_close(token_list,open_index):
             return x
 
 
-def operator(s_expression):
+def arithmetic_operator(s_expression):
 
     if(s_expression[0] == '+'):       # for expression starting with '+'
         result = 0
@@ -111,6 +111,12 @@ def operator(s_expression):
         while (x < len(s_expression)):
             if (type(s_expression[x]) == type([])):
                 s_expression[x]  = evaluator(s_expression[x])
+            if (type(s_expression[x])  == type('')):
+                try:
+                    s_expression[x] = ENV[s_expression[x]]
+                except KeyError:
+                    print("Variable not Declared")
+
             result += s_expression[x]
             x += 1
 
@@ -163,14 +169,34 @@ def operator(s_expression):
         return str(Fraction(result).limit_denominator())
 
 
+def bind_variable(s_expression):
 
+    if(type(s_expression[2]) == type(1)):         # if the 3rd element of the define statment is int create the variable and store the int
+        ENV[s_expression[1]] = s_expression[2]
+    elif(type(s_expression[2]) == type([])):       # if the 3rd element is of list instance send it to evaluator for evaluation
+        ENV[s_expression[1]] = evaluator(s_expression[2])
+    elif(type(s_expression[2]) == type('')):       # if the 3rd element is of string search the ENV for available value
+        try:
+            ENV[s_expression[1]] = ENV[s_expression[2]]
+        except KeyError:
+            raise SyntaxError ("Variable not found")
 
+    return ENV    # review needed to decide the return type
 
 
 def evaluator(s_expression):
-    if (s_expression[0] == '+' or '-' or '*' or '/'):
-        result = operator(s_expression)
+    if (s_expression[0] == '+' or s_expression[0] ==  '-' or s_expression[0] ==  '*' or s_expression[0] ==  '/'):
+        result = arithmetic_operator(s_expression)
         return result
+    elif (s_expression[0] == 'define'):
+        bind_variable(s_expression) # review needed to decide what return to put
+        return
+    elif(s_expression[0] == 'begin'):
+        for x in s_expression:
+            if(type(x) == type([])):
+                print(evaluator(x))
+
+ENV = {}
 
 
 if __name__ == '__main__':
