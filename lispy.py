@@ -45,7 +45,6 @@ def parser(un_parsed_list_of_tokens):
     return parsed_list_of_tokens
 
 
-
 def build_list(un_parsed_tokens):
     new_list = []
     x = 0
@@ -185,6 +184,30 @@ def bind_variable(s_expression):
             raise SyntaxError ("Variable not found")
 
     return ENV    # review needed to decide the return type
+
+
+def if_statement(s_expression):
+    if (evaluator(s_expression[1]) == '#t'):
+        if(type(s_expression[2]) == type([])):
+            return evaluator(s_expression[2])
+        elif(type(s_expression[2]) == type(0)):
+            return s_expression[2]
+        elif(type(s_expression[2] == type(''))):
+            try:
+                return (ENV[s_expression[2]])
+            except KeyError:
+                print("variable not found")
+
+    else:
+        if(type(s_expression[3]) == type([])):
+            return evaluator(s_expression[3])
+        elif(type(s_expression[3]) == type(0)):
+            return s_expression[3]
+        elif(type(s_expression[3] == type(''))):
+            try:
+                return (ENV[s_expression[3]])
+            except KeyError:
+                print("variable not found")
 
 
 def evaluator(s_expression):
