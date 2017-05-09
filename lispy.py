@@ -90,6 +90,7 @@ def build_list(un_parsed_tokens):
                 x += 1
     return new_list
 
+
 def find_respective_close(token_list,open_index):
     open_p = 0
     close_p = 0
@@ -169,6 +170,29 @@ def arithmetic_operator(s_expression):
         return str(Fraction(result).limit_denominator())
 
 
+def relational_operator(s_expression):
+    if(len(s_expression) == 2):
+        return '#t'
+
+    x = 2
+    for y in range(0,len(s_expression)):
+        if(type(s_expression[y]) == type([])):
+            s_expression[y] = evaluator(s_expression[y])
+
+    if(s_expression[0] == '<'):
+        while x < len(s_expression):
+            if ( s_expression[x-1] >= s_expression[x]):
+                return '#f'
+            x += 1
+        return '#t'
+
+    if(s_expression[0] == '>'):
+        while x < len(s_expression):
+            if (s_expression[x-1] <= s_expression[x]):
+                return '#f'
+            x += 1
+        return '#t'
+
 def bind_variable(s_expression):
 
     if(type(s_expression[2]) == type(1)):         # if the 3rd element of the define statment is int create the variable and store the int
@@ -202,5 +226,6 @@ ENV = {}
 if __name__ == '__main__':
 
     input_string_main = input()
-    print ('parser output : ', parser(scanner(input_string_main)))
-
+    parsed_output = parser(scanner(input_string_main))
+    print ('parser output : ', parsed_output)
+    print ('evaluator output : ',evaluator(parsed_output))
