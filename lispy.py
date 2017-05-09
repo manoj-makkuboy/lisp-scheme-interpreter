@@ -29,28 +29,6 @@ def parser(un_parsed_list_of_tokens):
             return (x)
 
 
-    def is_parenthesis_valid(parenthesis_list_arg):
-        '''finds the given list of parenthesis is valid set'''
-
-        parenthesis_list_length = len(parenthesis_list_arg)
-
-        if (parenthesis_list_length % 2 != 0):
-            return False
-
-        first_half_of_parenthesis = parenthesis_list_arg[:(parenthesis_list_length//2)]
-        second_half_of_parenthesis = parenthesis_list_arg[parenthesis_list_length//2:parenthesis_list_length+1]
-        print (first_half_of_parenthesis)
-        print(second_half_of_parenthesis)
-        for parenthesis in first_half_of_parenthesis:
-            if(parenthesis != '('):
-                return False
-
-        for parenthesis in second_half_of_parenthesis:
-            if(parenthesis != ')'):
-                return False
-
-        return True
-
 
     for x in range(0,len(un_parsed_list_of_tokens)):
 
@@ -62,8 +40,6 @@ def parser(un_parsed_list_of_tokens):
         parsed_list_of_tokens.append(item_parser(un_parsed_list_of_tokens[x]))
 
     print(parenthesis)
-    if (is_parenthesis_valid(parenthesis) == False):
-        raise SyntaxError("Syntax Error invalid parenthesis")
 
 
     return parsed_list_of_tokens
@@ -171,6 +147,8 @@ def arithmetic_operator(s_expression):
 
 
 def relational_operator(s_expression):
+    ''' expects a list with first element with either '>' or '<' returns #t or
+    #f based on the operands'''
     if(len(s_expression) == 2):
         return '#t'
 
@@ -193,6 +171,7 @@ def relational_operator(s_expression):
             x += 1
         return '#t'
 
+
 def bind_variable(s_expression):
 
     if(type(s_expression[2]) == type(1)):         # if the 3rd element of the define statment is int create the variable and store the int
@@ -209,17 +188,23 @@ def bind_variable(s_expression):
 
 
 def evaluator(s_expression):
+    ''' gets a list as input and dispatches the list to various functions based on the first element of the list'''
     if (s_expression[0] == '+' or s_expression[0] ==  '-' or s_expression[0] ==  '*' or s_expression[0] ==  '/'):
         result = arithmetic_operator(s_expression)
         return result
+    elif(s_expression[0] == '>' or s_expression[0] == '<'  or s_expression[0] == '>=' or s_expression[0] == '<='):
+        result = relational_operator(s_expression)
+        return result
+
     elif (s_expression[0] == 'define'):
         bind_variable(s_expression) # review needed to decide what return to put
-        return
+
     elif(s_expression[0] == 'begin'):
         for x in s_expression:
             if(type(x) == type([])):
-                print(evaluator(x))
-
+                result = evaluator(x)
+                if(result != None):
+                    return result
 ENV = {}
 
 
@@ -228,4 +213,6 @@ if __name__ == '__main__':
     input_string_main = input()
     parsed_output = parser(scanner(input_string_main))
     print ('parser output : ', parsed_output)
-    print ('evaluator output : ',evaluator(parsed_output))
+    built_list_output = build_list(parsed_output)
+    print ('built output : ',(built_list_output))
+    print ('evaluator output : ', evaluator(built_list_output))
