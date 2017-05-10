@@ -29,33 +29,33 @@ def parser(un_parsed_list_of_tokens):
             return (x)
 
 
+    def build_list(un_parsed_tokens):
+        new_list = []
+        x = 0
+
+        if(un_parsed_tokens[x] == '('):
+            x += 1
+
+            while(x < len(un_parsed_tokens)):
+                if(un_parsed_tokens[x] == ')'):
+                    return new_list           # base Return
+                elif(un_parsed_tokens[x] == '('):
+                    respective_close_int = find_respective_close(un_parsed_tokens,x)
+                    sub_list = build_list(un_parsed_tokens[x:respective_close_int + 1])
+                    x  = respective_close_int + 1
+                    new_list.append(sub_list)
+                elif(un_parsed_tokens[x] != ')' or '('):
+                    new_list.append(un_parsed_tokens[x])
+                    x += 1
+        return new_list
+
+
 
     for x in range(0,len(un_parsed_list_of_tokens)):
 
         parsed_list_of_tokens.append(item_parser(un_parsed_list_of_tokens[x]))
 
-    return parsed_list_of_tokens
-
-
-def build_list(un_parsed_tokens):
-    new_list = []
-    x = 0
-
-    if(un_parsed_tokens[x] == '('):
-        x += 1
-
-        while(x < len(un_parsed_tokens)):
-            if(un_parsed_tokens[x] == ')'):
-                return new_list           # base Return
-            elif(un_parsed_tokens[x] == '('):
-                respective_close_int = find_respective_close(un_parsed_tokens,x)
-                sub_list = build_list(un_parsed_tokens[x:respective_close_int + 1])
-                x  = respective_close_int + 1
-                new_list.append(sub_list)
-            elif(un_parsed_tokens[x] != ')' or '('):
-                new_list.append(un_parsed_tokens[x])
-                x += 1
-    return new_list
+    return build_list(parsed_list_of_tokens)
 
 
 def find_respective_close(token_list,open_index):
@@ -229,7 +229,7 @@ if __name__ == '__main__':
 
     while True:
         input_value = input("manoj's lispy >>> ")
-        print (evaluator(build_list(parser(scanner(input_value)))))
+        print (evaluator((parser(scanner(input_value)))))
 
 
 #    input_string_main = input()
