@@ -246,6 +246,11 @@ def evaluator(s_expression):
         result = max_fn(s_expression)
         return result
 
+    elif(s_expression[0] == 'min'):
+        result = min_fn(s_expression)
+        return result
+
+
 ENV = {}
 
 
@@ -254,6 +259,13 @@ def max_fn(s_expression):
         if type(s_expression[x]) == type([]):
             s_expression[x] =  evaluator(s_expression[x])
     return max(s_expression[1:])
+
+def min_fn(s_expression):
+    for x in range(1,len(s_expression)):
+        if type(s_expression[x]) == type([]):
+            s_expression[x] =  evaluator(s_expression[x])
+    return min(s_expression[1:])
+
 
 if __name__ == '__main__':
 
