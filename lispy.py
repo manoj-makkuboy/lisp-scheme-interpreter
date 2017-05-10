@@ -219,7 +219,7 @@ def if_statement(s_expression):
 
 
 def evaluator(s_expression):
-    ''' gets a list as input and dispatches the list to various functions based on the first element of the list'''
+    ''' gets a list as input and dispatches the list to various functions based on the first element of the list '''
     if (s_expression[0] == '+' or s_expression[0] ==  '-' or s_expression[0] ==  '*' or s_expression[0] ==  '/'):
         result = arithmetic_operator(s_expression)
         return result
@@ -232,20 +232,23 @@ def evaluator(s_expression):
 
     elif (s_expression[0] == 'if'):
         return if_statement(s_expression)
+
     elif(s_expression[0] == 'begin'):
-        for x in s_expression:
-            if(type(x) == type([])):
-                result = evaluator(x)
-                if(result != None):
+
+        for x in range(0,len(s_expression)):
+
+            if(type(s_expression[x]) == type([])):
+                result = evaluator(s_expression[x])
+                if(x == (len(s_expression) - 1)):
                     return result
 ENV = {}
 
 
 if __name__ == '__main__':
 
-    while True:
+    while True:                  # REPL
         input_value = input("manoj's lispy >>> ")
-        print (evaluator((parser(scanner(input_value)))))
+        print ("LISPY output : ",evaluator((parser(scanner(input_value)))))
 
 
 #    input_string_main = input()
