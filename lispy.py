@@ -177,8 +177,6 @@ def relational_operator(s_expression):
         return '#t'
 
 
-
-
 def bind_variable(s_expression):
 
     if(type(s_expression[2]) == type(1)):         # if the 3rd element of the define statment is int create the variable and store the int
@@ -250,6 +248,9 @@ def evaluator(s_expression):
         result = min_fn(s_expression)
         return result
 
+    elif(s_expression[0] == 'quote'):
+        result = quote_fn(s_expression)
+        return result
 
 ENV = {}
 
@@ -266,6 +267,10 @@ def min_fn(s_expression):
             s_expression[x] =  evaluator(s_expression[x])
     return min(s_expression[1:])
 
+
+def quote_fn(s_expression):
+    s_expression[1] = str(s_expression[1]).replace("[","(").replace("]",")").replace("'",'').replace(",",'')
+    return s_expression[1]
 
 if __name__ == '__main__':
 
