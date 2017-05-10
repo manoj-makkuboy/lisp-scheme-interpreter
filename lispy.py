@@ -162,6 +162,22 @@ def relational_operator(s_expression):
             x += 1
         return '#t'
 
+    if(s_expression[0] == '<='):
+            while x < len(s_expression):
+                if ( s_expression[x-1] > s_expression[x]):
+                    return '#f'
+                x += 1
+            return '#t'
+
+    if(s_expression[0] == '>='):
+        while x < len(s_expression):
+            if (s_expression[x-1] < s_expression[x]):
+                return '#f'
+            x += 1
+        return '#t'
+
+
+
 
 def bind_variable(s_expression):
 
