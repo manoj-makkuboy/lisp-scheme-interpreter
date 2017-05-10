@@ -32,15 +32,7 @@ def parser(un_parsed_list_of_tokens):
 
     for x in range(0,len(un_parsed_list_of_tokens)):
 
-        if(un_parsed_list_of_tokens[x] == '('):
-            parenthesis.append('(')
-        elif(un_parsed_list_of_tokens[x] == ')'):
-            parenthesis.append(')')
-
         parsed_list_of_tokens.append(item_parser(un_parsed_list_of_tokens[x]))
-
-    print(parenthesis)
-
 
     return parsed_list_of_tokens
 
@@ -222,6 +214,8 @@ def evaluator(s_expression):
     elif (s_expression[0] == 'define'):
         bind_variable(s_expression) # review needed to decide what return to put
 
+    elif (s_expression[0] == 'if'):
+        return if_statement(s_expression)
     elif(s_expression[0] == 'begin'):
         for x in s_expression:
             if(type(x) == type([])):
@@ -233,9 +227,14 @@ ENV = {}
 
 if __name__ == '__main__':
 
-    input_string_main = input()
-    parsed_output = parser(scanner(input_string_main))
-    print ('parser output : ', parsed_output)
-    built_list_output = build_list(parsed_output)
-    print ('built output : ',(built_list_output))
-    print ('evaluator output : ', evaluator(built_list_output))
+    while True:
+        input_value = input("manoj's lispy >>> ")
+        print (evaluator(build_list(parser(scanner(input_value)))))
+
+
+#    input_string_main = input()
+#    parsed_output = parser(scanner(input_string_main))
+#    print ('parser output : ', parsed_output)
+#    built_list_output = build_list(parsed_output)
+#    print ('built output : ',(built_list_output))
+#    print ('evaluator output : ', evaluator(built_list_output))
