@@ -69,6 +69,18 @@ def find_respective_close(token_list,open_index):
             return x
 
 
+def eval_and_return(token):
+    if(type(token) is list):
+        return evaluator(token)
+    elif(type(token) is  str):
+        try:
+            return ENV[token]
+        except KeyError:
+            print ("Variable not found")
+    elif(type(token) is int):
+         return token
+
+
 def arithmetic_operator(s_expression):
 
     if(s_expression[0] == '+'):       # for expression starting with '+'
@@ -76,14 +88,8 @@ def arithmetic_operator(s_expression):
         x = 1
 
         while (x < len(s_expression)):
-            if (type(s_expression[x]) == type([])):
-                s_expression[x]  = evaluator(s_expression[x])
-            if (type(s_expression[x])  == type('')):
-                try:
-                    s_expression[x] = ENV[s_expression[x]]
-                except KeyError:
-                    print("Variable not Declared")
 
+            s_expression[x] = eval_and_return(s_expression[x])
             result += s_expression[x]
             x += 1
 
@@ -100,8 +106,7 @@ def arithmetic_operator(s_expression):
 
         while (x < len(s_expression)):
 
-            if (type(s_expression[x]) == type([])):
-                s_expression[x]  = evaluator(s_expression[x])
+            s_expression[x]  = eval_and_return(s_expression[x])
             result -= s_expression[x]
             x += 1
 
@@ -112,8 +117,7 @@ def arithmetic_operator(s_expression):
         x = 1
 
         while (x < len(s_expression)):
-            if (type(s_expression[x]) == type([])):
-                s_expression[x]  = evaluator(s_expression[x])
+            s_expression[x]  = eval_and_return(s_expression[x])
             result *= s_expression[x]
             x += 1
 
@@ -125,15 +129,14 @@ def arithmetic_operator(s_expression):
 
 
         if(len(s_expression) == 2):     # special case to return (/ 5) as (1/5)
-            return str(Fraction(1/s_expression[1]))
+            return 1/s_expression[1]
 
         while (x < len(s_expression)):
-            if (type(s_expression[x]) == type([])):
-                s_expression[x]  = evaluator(s_expression[x])
+            s_expression[x]  = eval_and_return(s_expression[x])
             result /= s_expression[x]
             x += 1
 
-        return str(Fraction(result).limit_denominator())
+        return result
 
 
 def relational_operator(s_expression):
@@ -178,15 +181,16 @@ def relational_operator(s_expression):
 
 def bind_variable(s_expression):
 
-    if(type(s_expression[2]) == type(1)):         # if the 3rd element of the define statment is int create the variable and store the int
-        ENV[s_expression[1]] = s_expression[2]
-    elif(type(s_expression[2]) == type([])):       # if the 3rd element is of list instance send it to evaluator for evaluation
-        ENV[s_expression[1]] = evaluator(s_expression[2])
-    elif(type(s_expression[2]) == type('')):       # if the 3rd element is of string search the ENV for available value
-        try:
-            ENV[s_expression[1]] = ENV[s_expression[2]]
-        except KeyError:
-            raise SyntaxError ("Variable not found")
+    try:
+
+        if(s_expression[2][0] == 'lambda'):
+
+            ENV[s_expression[1]] = s_expression[2]
+            return ENV
+    except TypeError:
+        pass
+
+    ENV[s_expression[1]] = eval_and_return(s_expression[2])
 
     return ENV    # review needed to decide the return type
 
@@ -215,7 +219,20 @@ def if_statement(s_expression):
                 print("variable not found")
 
 
-def evaluator(s_expression):
+def function_call(s_expression, lambda_expression):
+    function_env = {}
+    if(len(s_expression[1:])  != len(lambda_expression[1])):
+           raise SyntaxError ("number of actual args and formal args not matching")
+
+    for x in range(0,len(lambda_expression[1])):  # building function_env
+        function_env[lambda_expression[1][x]] =  eval_and_return(s_expression [x+1])  # assigning s_expression's args to saved lambda's variables in function_env dict
+#    return function_env   # return for testing purpose
+    global ENV
+    ENV = {**ENV , **function_env}              # workaround and needs to be changed
+
+    return evaluator(lambda_expression[2])
+
+def evaluator(s_expression, function_env = None):
     ''' gets a list as input and dispatches the list to various functions based on the first element of the list '''
     if (s_expression[0] == '+' or s_expression[0] ==  '-' or s_expression[0] ==  '*' or s_expression[0] ==  '/'):
         result = arithmetic_operator(s_expression)
@@ -226,7 +243,7 @@ def evaluator(s_expression):
 
     elif (s_expression[0] == 'define'):
         bind_variable(s_expression) # review needed to decide what return to put
-
+        return ENV
     elif (s_expression[0] == 'if'):
         return if_statement(s_expression)
 
@@ -251,6 +268,13 @@ def evaluator(s_expression):
         result = quote_fn(s_expression)
         return result
 
+    elif(s_expression[0] in ENV):                   # user defined function call
+        if type(ENV[s_expression[0]]) == list:
+            if (ENV[s_expression[0]][0] == 'lambda'):
+                lambda_expression =  ENV[s_expression[0]]
+                return function_call(s_expression,lambda_expression)
+
+
 ENV = {}
 
 
@@ -259,6 +283,7 @@ def max_fn(s_expression):
         if type(s_expression[x]) == type([]):
             s_expression[x] =  evaluator(s_expression[x])
     return max(s_expression[1:])
+
 
 def min_fn(s_expression):
     for x in range(1,len(s_expression)):
@@ -271,11 +296,19 @@ def quote_fn(s_expression):
     s_expression[1] = str(s_expression[1]).replace("[","(").replace("]",")").replace("'",'').replace(",",'')
     return s_expression[1]
 
+def make_float_fraction(float_value):
+
+    return str(Fraction(float_value).limit_denominator())
+
+
 if __name__ == '__main__':
 
     while True:                  # REPL
         input_value = input("manoj's lispy >>> ")
-        print ("LISPY output : ",evaluator((parser(scanner(input_value)))))
+        result = evaluator((parser(scanner(input_value))))   #str(Fraction(result).limit_denominator())
+        if(isinstance(result,float)):
+           result =  make_float_fraction(result)
+        print ("LISPY output : ",result)
 
 
 #    input_string_main = input()
