@@ -17,7 +17,6 @@ def parser(un_parsed_list_of_tokens):
         list of tokens and uses item_parser funtion to
         parse those items'''
 
-    parenthesis = []
     parsed_list_of_tokens = []
 
     def item_parser(x):
