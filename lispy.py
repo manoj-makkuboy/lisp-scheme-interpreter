@@ -1,5 +1,7 @@
 from fractions import Fraction
 
+ENV = {}
+
 def scanner(input_str):
     '''Scans the input string from standard input and replaces '(' with ' [ '
         and ')' with ' ] ' '''
@@ -232,6 +234,7 @@ def function_call(s_expression, lambda_expression):
 
     return evaluator(lambda_expression[2])
 
+
 def evaluator(s_expression, function_env = None):
     ''' gets a list as input and dispatches the list to various functions based on the first element of the list '''
     if (s_expression[0] == '+' or s_expression[0] ==  '-' or s_expression[0] ==  '*' or s_expression[0] ==  '/'):
@@ -275,9 +278,6 @@ def evaluator(s_expression, function_env = None):
                 return function_call(s_expression,lambda_expression)
 
 
-ENV = {}
-
-
 def max_fn(s_expression):
     for x in range(1,len(s_expression)):
         if type(s_expression[x]) == type([]):
@@ -295,6 +295,7 @@ def min_fn(s_expression):
 def quote_fn(s_expression):
     s_expression[1] = str(s_expression[1]).replace("[","(").replace("]",")").replace("'",'').replace(",",'')
     return s_expression[1]
+
 
 def make_float_fraction(float_value):
 
