@@ -97,7 +97,7 @@ def arithmetic_operator(s_expression):
 
     if(s_expression[0] == '-'):      # for expression starting with '-'
 
-        result = s_expression[1]
+        result = eval_and_return(s_expression[1])
 
         if(len(s_expression) == 2):   # Special case like (- 3) to return -3
            return (-1 * result)
