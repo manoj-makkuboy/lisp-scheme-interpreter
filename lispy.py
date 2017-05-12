@@ -124,7 +124,7 @@ def arithmetic_operator(s_expression):
         return result
 
     if(s_expression[0] == '/'):       # for expression starting with '/'
-        result = s_expression[1]
+        result = eval_and_return(s_expression[1])
         x = 2
 
 
