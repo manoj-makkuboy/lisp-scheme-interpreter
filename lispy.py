@@ -29,7 +29,6 @@ def parser(un_parsed_list_of_tokens):
         except ValueError:
             return (x)
 
-
     def build_list(un_parsed_tokens):
         new_list = []
         x = 0
@@ -50,12 +49,8 @@ def parser(un_parsed_list_of_tokens):
                     x += 1
         return new_list
 
-
-
     for x in range(0,len(un_parsed_list_of_tokens)):
-
         parsed_list_of_tokens.append(item_parser(un_parsed_list_of_tokens[x]))
-
     return build_list(parsed_list_of_tokens)
 
 
@@ -80,7 +75,7 @@ def eval_and_return(token):
         except KeyError:
             print ("Variable not found")
     elif(type(token) is int):
-         return token
+        return token
 
 
 def arithmetic_operator(s_expression):
@@ -139,6 +134,7 @@ def arithmetic_operator(s_expression):
             x += 1
 
         return result
+
 
 
 def relational_operator(s_expression):
@@ -306,15 +302,7 @@ if __name__ == '__main__':
 
     while True:                  # REPL
         input_value = input("manoj's lispy >>> ")
-        result = evaluator((parser(scanner(input_value))))   #str(Fraction(result).limit_denominator())
+        result = evaluator((parser(scanner(input_value))))
         if(isinstance(result,float)):
            result =  make_float_fraction(result)
         print ("LISPY output : ",result)
-
-
-#    input_string_main = input()
-#    parsed_output = parser(scanner(input_string_main))
-#    print ('parser output : ', parsed_output)
-#    built_list_output = build_list(parsed_output)
-#    print ('built output : ',(built_list_output))
-#    print ('evaluator output : ', evaluator(built_list_output))
