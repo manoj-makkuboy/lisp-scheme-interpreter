@@ -1,4 +1,5 @@
 from fractions import Fraction
+from copy import deepcopy
 
 ENV = {}
 
@@ -66,19 +67,28 @@ def find_respective_close(token_list,open_index):
             return x
 
 
-def eval_and_return(token):
+def eval_and_return(token, fn_env = None):
     if(type(token) is list):
         return evaluator(token)
     elif(type(token) is  str):
         try:
-            return ENV[token]
-        except KeyError:
-            print ("Variable not found")
+            return fn_env[token]
+        except (KeyError, TypeError) as e:
+            try:
+                return ENV[token]
+            except KeyError:
+                print ("Variable not found")
+#        else:
+#            try:
+#                return ENV[token]
+#            except KeyError:
+#                print ("Variable not found")
+
     elif(type(token) is int):
         return token
 
 
-def arithmetic_operator(s_expression):
+def arithmetic_operator(s_expression,fn_env = None):
 
     if(s_expression[0] == '+'):       # for expression starting with '+'
         result = 0
@@ -86,18 +96,26 @@ def arithmetic_operator(s_expression):
 
         while (x < len(s_expression)):
 
-            s_expression[x] = eval_and_return(s_expression[x])
+            s_expression[x] = eval_and_return(s_expression[x], fn_env)
             result += s_expression[x]
             x += 1
 
         return result
 
+#    if(s_expression[0] == '+'):       # for expression starting with '+'
+#        return reduce(lambda x,y : eval_and_return(x,fn_env) + eval_and_return(y,fn_env), s_expression[1:])  # testing fn_env
+#
+#    if(s_expression[0] == '-'):      # for expression starting with '-'
+#        return reduce(lambda x,y : eval_and_return(x) - eval_and_return(y), s_expression[1:])
+#
+#    if(s_expression[0] == '*'):       # for expression starting with '*'
+#        return reduce(lambda x,y : eval_and_return(x) * eval_and_return(y), s_expression[1:])
     if(s_expression[0] == '-'):      # for expression starting with '-'
 
         result = eval_and_return(s_expression[1])
 
         if(len(s_expression) == 2):   # Special case like (- 3) to return -3
-           return (-1 * result)
+            return (-1 * result)
 
         x = 2
 
@@ -120,6 +138,7 @@ def arithmetic_operator(s_expression):
 
         return result
 
+
     if(s_expression[0] == '/'):       # for expression starting with '/'
         result = eval_and_return(s_expression[1])
         x = 2
@@ -133,8 +152,9 @@ def arithmetic_operator(s_expression):
             result /= s_expression[x]
             x += 1
 
-        return result
+            return result
 
+ #       return reduce(lambda x,y : eval_and_return(x) / eval_and_return(y), s_expression[1:])
 
 
 def relational_operator(s_expression):
@@ -218,23 +238,25 @@ def if_statement(s_expression):
 
 
 def function_call(s_expression, lambda_expression):
-    function_env = {}
+    fn_env = {}
     if(len(s_expression[1:])  != len(lambda_expression[1])):
            raise SyntaxError ("number of actual args and formal args not matching")
 
     for x in range(0,len(lambda_expression[1])):  # building function_env
-        function_env[lambda_expression[1][x]] =  eval_and_return(s_expression [x+1])  # assigning s_expression's args to saved lambda's variables in function_env dict
+        fn_env[lambda_expression[1][x]] =  eval_and_return(s_expression [x+1])  # assigning s_expression's args to saved lambda's variables in function_env dict
 #    return function_env   # return for testing purpose
-    global ENV
-    ENV = {**ENV , **function_env}              # workaround and needs to be changed
+#    global ENV
+    if(fn_env == {}):
+        fn_env = None
+#    ENV = {**ENV , **function_env}              # workaround and needs to be changed
+    print ("lambda expr :",lambda_expression[2],"fn_env",fn_env)
+    return evaluator(lambda_expression[2],fn_env)
 
-    return evaluator(lambda_expression[2])
 
-
-def evaluator(s_expression, function_env = None):
+def evaluator(s_expression, fn_env = None):
     ''' gets a list as input and dispatches the list to various functions based on the first element of the list '''
     if (s_expression[0] == '+' or s_expression[0] ==  '-' or s_expression[0] ==  '*' or s_expression[0] ==  '/'):
-        result = arithmetic_operator(s_expression)
+        result = arithmetic_operator(s_expression, fn_env)
         return result
     elif(s_expression[0] == '>' or s_expression[0] == '<'  or s_expression[0] == '>=' or s_expression[0] == '<='):
         result = relational_operator(s_expression)
@@ -270,7 +292,7 @@ def evaluator(s_expression, function_env = None):
     elif(s_expression[0] in ENV):                   # user defined function call
         if type(ENV[s_expression[0]]) == list:
             if (ENV[s_expression[0]][0] == 'lambda'):
-                lambda_expression =  ENV[s_expression[0]]
+                lambda_expression =  deepcopy(ENV[s_expression[0]])  # point
                 return function_call(s_expression,lambda_expression)
 
 
