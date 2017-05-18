@@ -1,5 +1,6 @@
 from fractions import Fraction
 from copy import deepcopy
+from functools import reduce
 
 ENV = {}
 
@@ -86,75 +87,37 @@ def eval_and_return(token, fn_env = None):
 
     elif(type(token) is int):
         return token
+    elif(type(token) is float):
+        return token
 
 
 def arithmetic_operator(s_expression,fn_env = None):
 
-    if(s_expression[0] == '+'):       # for expression starting with '+'
-        result = 0
-        x = 1
+    if(s_expression[0] == '+'):
+        if (len(s_expression) == 2):
+            return eval_and_return(s_expression[1])
 
-        while (x < len(s_expression)):
+        return reduce((lambda x,y : (eval_and_return(x,fn_env)) + (eval_and_return(y,fn_env))),s_expression[1:]) # testing fn_env
 
-            s_expression[x] = eval_and_return(s_expression[x], fn_env)
-            result += s_expression[x]
-            x += 1
+    if(s_expression[0] == '-'):
 
-        return result
+        if(len(s_expression) == 2):
+            return (-1 * eval_and_return(s_expression[1]))
 
-#    if(s_expression[0] == '+'):       # for expression starting with '+'
-#        return reduce(lambda x,y : eval_and_return(x,fn_env) + eval_and_return(y,fn_env), s_expression[1:])  # testing fn_env
-#
-#    if(s_expression[0] == '-'):      # for expression starting with '-'
-#        return reduce(lambda x,y : eval_and_return(x) - eval_and_return(y), s_expression[1:])
-#
-#    if(s_expression[0] == '*'):       # for expression starting with '*'
-#        return reduce(lambda x,y : eval_and_return(x) * eval_and_return(y), s_expression[1:])
-    if(s_expression[0] == '-'):      # for expression starting with '-'
+        return reduce((lambda x,y : (eval_and_return(x,fn_env)) - (eval_and_return(y,fn_env))),s_expression[1:]) # testing fn_env
 
-        result = eval_and_return(s_expression[1])
+    if(s_expression[0] == '*'):
+        if(len(s_expression) == 2):
+            return eval_and_return(s_expression[1])
 
-        if(len(s_expression) == 2):   # Special case like (- 3) to return -3
-            return (-1 * result)
+        return reduce((lambda x, y : (eval_and_return(x, fn_env)) * (eval_and_return(y,fn_env))),s_expression[1:]) # testing fn_env
 
-        x = 2
-
-        while (x < len(s_expression)):
-
-            s_expression[x]  = eval_and_return(s_expression[x])
-            result -= s_expression[x]
-            x += 1
-
-        return result
-
-    if(s_expression[0] == '*'):       # for expression starting with '*'
-        result = 1
-        x = 1
-
-        while (x < len(s_expression)):
-            s_expression[x]  = eval_and_return(s_expression[x])
-            result *= s_expression[x]
-            x += 1
-
-        return result
-
-
-    if(s_expression[0] == '/'):       # for expression starting with '/'
-        result = eval_and_return(s_expression[1])
-        x = 2
-
+    if(s_expression[0] == '/'):
 
         if(len(s_expression) == 2):     # special case to return (/ 5) as (1/5)
-            return 1/s_expression[1]
+            return 1/eval_and_return(s_expression[1])
 
-        while (x < len(s_expression)):
-            s_expression[x]  = eval_and_return(s_expression[x])
-            result /= s_expression[x]
-            x += 1
-
-            return result
-
- #       return reduce(lambda x,y : eval_and_return(x) / eval_and_return(y), s_expression[1:])
+        return reduce((lambda x,y : (eval_and_return(x,fn_env)) / (eval_and_return(y,fn_env))),s_expression[1:]) # testing fn_env
 
 
 def relational_operator(s_expression):
@@ -277,13 +240,10 @@ def evaluator(s_expression, fn_env = None):
                 if(x == (len(s_expression) - 1)):
                     return result
 
-    elif(s_expression[0] == 'max'):
-        result = max_fn(s_expression)
+    elif(s_expression[0] == 'max' or s_expression[0] == 'min'):
+        result = max_min(s_expression, s_expression[0])
         return result
 
-    elif(s_expression[0] == 'min'):
-        result = min_fn(s_expression)
-        return result
 
     elif(s_expression[0] == 'quote'):
         result = quote_fn(s_expression)
@@ -296,18 +256,11 @@ def evaluator(s_expression, fn_env = None):
                 return function_call(s_expression,lambda_expression)
 
 
-def max_fn(s_expression):
-    for x in range(1,len(s_expression)):
-        if type(s_expression[x]) == type([]):
-            s_expression[x] =  evaluator(s_expression[x])
-    return max(s_expression[1:])
-
-
-def min_fn(s_expression):
-    for x in range(1,len(s_expression)):
-        if type(s_expression[x]) == type([]):
-            s_expression[x] =  evaluator(s_expression[x])
-    return min(s_expression[1:])
+def max_min(s_expression, func=None):
+    if(func == 'max'):
+        return max(map(eval_and_return, s_expression[1:]))
+    elif(func == 'min'):
+        return min(map(eval_and_return, s_expression[1:]))
 
 
 def quote_fn(s_expression):
